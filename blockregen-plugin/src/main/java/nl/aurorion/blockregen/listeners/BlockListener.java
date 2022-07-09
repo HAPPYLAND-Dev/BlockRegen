@@ -270,7 +270,7 @@ public class BlockListener implements Listener {
                 }
 
                 if (expToDrop.get() > 0) {
-                    giveExp(block.getLocation(), player, doubleExp ? expToDrop.get() * 2 : expToDrop.get(),
+                    giveExp(player, doubleExp ? expToDrop.get() * 2 : expToDrop.get(),
                             preset.isDropNaturally());
                 }
             } else {
@@ -307,7 +307,7 @@ public class BlockListener implements Listener {
 
                     // Drop/Give the exp.
 
-                    giveExp(block.getLocation(), player, expAmount.get(), experienceDrop.isDropNaturally());
+                    giveExp(player, expAmount.get(), experienceDrop.isDropNaturally());
                 }
             }
 
@@ -369,31 +369,18 @@ public class BlockListener implements Listener {
         log.fine(String.format("Spawning xp (%d).", amount));
     }
 
-    private void giveExp(Location location, Player player, int amount, boolean naturally) {
-        if (naturally)
-            spawnExp(location, amount);
-        else
-            player.giveExp(amount);
+    private void giveExp(Player player, int amount, boolean naturally) {
+        spawnExp(player.getLocation(), amount);
     }
 
     private void giveItem(ItemStack item, Player player, Block block, boolean naturally) {
         if (item == null)
             return;
-
-        if (naturally) {
-            dropItem(item, block);
-        } else {
-            giveItem(item, player);
-        }
+        dropItem(item, block, player);
     }
 
-    private void dropItem(ItemStack item, Block block) {
-        Bukkit.getScheduler().runTask(plugin, () -> block.getWorld().dropItemNaturally(block.getLocation(), item));
+    private void dropItem(ItemStack item, Block block, Player player) {
+        Bukkit.getScheduler().runTask(plugin, () -> block.getWorld().dropItemNaturally(player.getLocation(), item));
         log.fine("Dropping item " + item.getType() + "x" + item.getAmount());
-    }
-
-    private void giveItem(ItemStack item, Player player) {
-        Bukkit.getScheduler().runTask(plugin, () -> player.getInventory().addItem(item));
-        log.fine("Giving item " + item.getType() + "x" + item.getAmount());
     }
 }
